@@ -1,2 +1,3 @@
 # todolist-mnjk403r
-Gerado pelo AIOS Compiler — Imersao IA
+
+Gerado automaticamente pelo AIOS Compiler — Imersão IA Portugal
