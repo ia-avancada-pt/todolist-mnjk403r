@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width initial-scale1.0">
+ <title>ToDo List</>
+  <>
+    *, *before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI system-ui, sans-serif; background: #0a0a0a; color: #e5e5e5; min-height: 100vh; }
+    :root { --accent: #6366f1; }
+    input, textarea, select {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,2550.15);
+      border-radius8px;
+ color: #e5e5e5;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      outline none;
+      width 100%;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+   ::placeholder, textarea::placeholder { color: rgba(255,255,255,0.35); }
+    button {
+      background: var(--accent);
+      color #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    button:hover { opacity: 0.85; }
+    button:active { transform: scale(0.97); }
+    button.secondary { background: rgba(255,255,255,0.08); color: #e5e5e5; }
+    .card { background: rgba(,255,255,0.05);-filter: blur12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding:24px; }
+    .container { max-width: 1200px; margin: 40px auto; display: flex; flex-wrap: wrap; justify-content: center; }
+    .column { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,,255,0.1); border-radius: 12px;: 24px; margin: 20px; width: calc(33.33% - 20px); }
+    .task { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .task:hover { background: rgba(255,255,255,0.07); }
+    .task.completed { background: rgba(255,255,255,0.03); text-decoration: line-through }
+    .task.priority-low { border-left: 4px solid #8bc34a; }
+    .task.priority-medium { border-left: 4px solid #ffc107; }
+    .task.priority-high { border-left: 4px solid #f44336; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="column">
+      <h2>Todas as Tarefas</h2>
+      <ul id="all-tasks" class="task-list"></ul>
+    </div>
+    <div class="column">
+      <h2>Tarefas Pendentes</2>
+      <ul id="pending-tasks" class="task-list"></ul>
+   div>
+    <div class="column">
+ <h2>Tarefas Concluídas</h2>
+      <ul id="completed-tasks" class="task-list"></ul>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Adicionar Tarefa</h2>
+    <input id="task-title" type="text" placeholder="Título da tarefa">
+    <select id="task-priority">
+      <option value="low">Baixa</option>
+      <option value="medium">Média</option>
+      <option value="high">Alta</option>
+    </select>
+    <button id="add-task">Adicionar Tarefa</button>
+    <button id="filter-tasks" class="secondary">Filtrar Tarefas</button>
+    <input id="search-tasks" type="text" placeholder="Pesquisar tarefas">
+ </div>
+  <div class="card">
+    <h2>Contador de Tarefas Pendentes</h2>
+    <p="pending-tasks-count">0</p>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    const taskList = document.getElementById('all-tasks');
+    const pendingTaskList = document.getElementById('pending-tasks');
+    const completedTaskList = document.getElementById('completed-tasks');
+    const taskTitleInput = document.getElementById('task-title');
+    const taskPrioritySelect = document.getElementById('task-priority');
+    const addTaskButton = document.getElementById('add-task');
+    filterTasksButton = document.getElementById('filter-tasks');
+    const searchTasksInput = document.getElementById('search-tasks');
+    const pendingTasksCount = document.getElementById('pending-tasks-count');
+
+    function renderTasks() {
+      taskList.innerHTML = '';
+      pendingTaskList.innerHTML = '';
+      completedTaskList.innerHTML = '';
+      tasks.forEach((task, index) => {
+ const taskElement = document.createElement('li');
+        taskElement.classList.add('task');
+        if (task.completed) {
+          taskElement.classList.add('completed');
+        }
+        if (task.priority === 'low') {
+          taskElement.classList.add('priority-low');
+        } else if (task.priority === 'medium') {
+          taskElement.classList.add('priority-medium');
+        } else if (task.priority === 'high') {
+          taskElement.classList.add('priority-high');
+        }
+        taskElement.innerHTML = `
+          <span>${task.title}</span>
+          <button class="edit-task" data-index="${index}">Editar</button>
+          <button class="delete-task" data-index="${index}">Excluir</button>
+          <button class="toggle-completed" data-index="${index}">${task.completed ? 'Desmarcar' : 'Marcar como Concluída'}</button>
+        `;
+        taskList.appendChild(taskElement);
+        if (!task.completed) {
+          pendingTaskList.appendChildElement.cloneNode(true));
+        else {
+          completedTaskList.appendChild(taskElementNode(true));
+        }
+      });
+      pendingTasksCount.textContent = tasks.filter(task => !task.completed).length;
+    }
+
+    function addTask() {
+      const taskTitle = taskTitleInput.value.trim();
+      const taskPriority = taskPrioritySelect.value;
+      if (taskTitle) {
+        tasks.push({ title: taskTitle, priority: taskPriority, completed: false });
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        taskTitleInput.value = '';
+        renderTasks();
+      }
+    }
+
+    function filterTasks() {
+      const filterValue = searchTasksInput.value.trim().toLowerCase();
+      const filteredTasks = tasks.filter(task => task.title.toLowerCase().includes(filterValue));
+      taskList.innerHTML = '';
+      filteredTasks.forEach((task, index) => {
+ const taskElement =.createElement('li');
+        taskElement.classList.add('task');
+        if (task.completed) {
+          taskElement.classList.add('completed');
+        }
+        if (task.priority === 'low') {
+          taskElement.classList.add('priority-low');
+        } else if (task.priority === 'medium') {
+          taskElement.classList.add('priority-medium');
+        } else if (task.priority === 'high') {
+          taskElement.classList.add('priority');
+        }
+        taskElement.innerHTML = `
+ <span>${task.title}</span>
+          <button class="edit-task" data-index="${index}">Editar</button>
+          <button class="delete-task" data-index="${index}">Excluir</button>
+          <button class="toggle-completed" data-index="${index}">${task.completed ? 'Desmarcar' : 'Marcar como Concluída'}</button>
+        `;
+        taskList.appendChild(taskElement);
+      });
+    }
+
+    function editTask(index) {
+      const taskTitle = prompt('Digite o novo título da tarefa      if (taskTitle) {
+        tasks[index].title = taskTitle;
+        localStorage.setItemtasks', JSON.stringify(tasks));
+        renderTasks();
+      }
+    }
+
+ function deleteTask(index) {
+      tasks.splice(index, 1);
+ localStorage.setItem('tasks', JSON.stringify(tasks));
+      renderTasks();
+    }
+
+    function toggleCompleted(index) {
+      tasks[index].completed = !tasks[index].completed;
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      renderTasks();
+    }
+
+    addTaskButton.addEventListener('click', add);
+    filterTasksButton.addEventListener('click', filterTasks);
+    searchTasksInput.addEventListener('input', filterTasks);
+    taskList.addEventListener('click', (e) => {
+      (e.target.classList.contains('edit-task')) {
+        editTask(parseInt(e.target.dataset.index));
+      } else if (e.target.classList.contains('delete-task')) {
+        deleteTask(parseInt(e.target.dataset.index));
+      } else if (e.target.classList.contains('toggle-completed')) {
+        toggleCompleted(parseInt(e.target.dataset.index));
+      }
+    });
+    pendingTaskList.addEventListener('click', (e) => {
+      if (e.target.classList.contains('edit-task')) {
+        editTask(parseInt(e.target.dataset.index));
+      } else if (e.target.classList.contains('delete-task')) {
+        deleteTask(parseInt(e.target.dataset.index));
+      } else if (e.target.classList.contains('toggle-completed')) {
+        toggleCompleted(parseInt(e.target.dataset.index));
+      }
+    });
+    completedTaskList.addEventListener('click', (e) => {
+      if (e.target.classList.contains('edit-task')) {
+        editTask(parseInt(e.target.dataset.index));
+      } else if (e.target.classList.contains('delete-task')) {
+        deleteTask(e.target.dataset.index));
+      } else if (e.target.classList.contains('toggle-completed')) {
+        toggleCompleted(parseInt(e.target.dataset.index));
+ }
+    });
+
+    renderTasks();
+  </script>
+</body>
+</html>
